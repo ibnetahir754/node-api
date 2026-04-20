@@ -1,0 +1,34 @@
+name: Deploy Angular Dashboard
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Build Project
+        working-directory: ./angular-dashboard
+        run: |
+          npm install
+          npm run build
+
+      - name: Copy Files to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "angular-dashboard/dist/angular-dashboard/*"
+          target: "/var/www/angular-dashboard"
+          strip_components: 3

@@ -1,0 +1,58 @@
+services:
+  node-api:
+    build: ./node-api
+    container_name: node_api_lab
+    ports:
+      - "3001:3001"
+    networks:
+      - backend_net
+
+  fastapi-api:
+    build: ./fastapi-api
+    container_name: fastapi_api_lab
+    ports:
+      - "8001:8001"
+    environment:
+      NODE_API_URL: http://node-api:3001
+    depends_on:
+      - node-api
+    networks:
+      - backend_net
+      - frontend_net
+
+  angular-dashboard:
+    build: ./angular-dashboard
+    container_name: angular_dashboard_lab
+    ports:
+      - "4201:4201"
+    depends_on:
+      - fastapi-api
+    networks:
+      - frontend_net
+
+  angular-monitor:
+    build: ./angular-monitor
+    container_name: angular_monitor_lab
+    ports:
+      - "4202:4202"
+    depends_on:
+      - fastapi-api
+    networks:
+      - frontend_net
+
+  react-checker:
+    build: ./react-checker
+    container_name: react_checker_lab
+    ports:
+      - "3000:3000"
+    depends_on:
+      - fastapi-api
+      - node-api
+    networks:
+      - frontend_net
+
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
